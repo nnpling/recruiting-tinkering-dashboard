@@ -39,12 +39,14 @@ npm test
 - `dist/model.js`: liên kết bản ghi, thay đổi giai đoạn, quyết định, feedback, đổi lịch, email nháp, import/export.
 - `dist/goals-model.js`: dữ liệu và quy tắc cho mục tiêu công việc, tách khỏi database ứng viên.
 - `dist/goals-view.js`: danh sách mục tiêu, kế hoạch task, preset và thao tác import/export Goals.
+- `dist/recruiting-details.js`: thông tin tuyển dụng dưới tên ứng viên, control sửa trực tiếp và kiểm tra giá trị từng trường.
 - `dist/schema.json`: schema đầy đủ của Sheet, gồm tên cột, loại, dropdown và mô tả tiếng Việt.
 - `dist/styles.css`: giao diện desktop/mobile và trạng thái truy cập bằng bàn phím.
 - `dist/goals.css`: bố cục và trạng thái của màn hình Goals trên desktop/mobile.
 - `tests/model.test.mjs`: kiểm tra những quy tắc có thể gây sai dữ liệu hoặc workflow.
 - `tests/goals.test.mjs`: kiểm tra tiến độ, hoàn thành mục tiêu, ngày, liên kết task và import/export của Goals.
 - `tests/goals-view.test.mjs`: kiểm tra luồng xác nhận hoàn thành Goals trên UI.
+- `tests/recruiting-details.test.mjs`: kiểm tra sửa đúng Candidate/Application, lương, ngày, giá trị trống và an toàn khi hiển thị thông tin.
 
 `schema_version` là `1.0`. JSON xuất giữ đủ `Jobs`, `Candidates`, `Applications`, `Documents`, `Rounds`, `Feedback`, `Tasks`, `Emails`, `Offers`, `ActivityLog`; trường JSON trong từng bản ghi vẫn là chuỗi JSON đúng schema. Có thể xuất riêng từng bảng CSV từ phần khám phá database. CSV chặn diễn giải giá trị bắt đầu bằng ký tự công thức; JSON là bản xuất chuẩn để bảo toàn dữ liệu.
 
@@ -58,6 +60,7 @@ Dữ liệu Goals được lưu cục bộ riêng với dữ liệu ATS. File **
 
 ## Quy tắc đã thực hiện
 
+- Thông tin tuyển dụng nằm dưới tên/vị trí ứng tuyển và trước các tab hồ sơ. Các trường sửa trực tiếp, hiện Lưu/Hủy khi focus hoặc có thay đổi. Enter lưu một trường; Escape hủy sửa trường; ghi chú dùng Ctrl/Cmd + Enter để lưu. Bản nháp các trường khác được giữ khi lưu một trường, và được xóa khi thay workspace/import database.
 - Một Candidate có nhiều Application; không dùng số dòng làm mã.
 - Fit và coverage lưu 0–1; ô trống hiển thị “—”, khác 0%.
 - Feedback và quyết định recruiter được giữ riêng.

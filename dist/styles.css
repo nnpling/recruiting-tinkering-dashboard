@@ -468,6 +468,43 @@ button.chip:hover { background: #e0ebd5; color: #577544; }
 .decision-block > p { font-size: 10px; color: #8b9f78; margin-top: 13px; }
 .detail-item > span:first-child { color: #7c8e70; font-size: 10px; font-weight: 400; display: block; margin-bottom: 3px; }
 .detail-item > strong { display: block; }
+
+/* Recruiting details stay beside identity and edit directly in place. */
+.recruiting-details { margin: 21px 0 18px; padding: 17px 0 18px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.recruiting-details-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+.recruiting-details-heading h3 { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.recruiting-details-heading small { font-size: 10px; color: #6d7e63; }
+.recruiting-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 17px; }
+.inline-recruiting-field { position: relative; min-width: 0; margin: 0; padding: 0; }
+.inline-recruiting-field.is-wide { grid-column: 1 / -1; }
+.inline-recruiting-label { min-height: 25px; padding: 3px 76px 5px 7px; font-size: 10px; line-height: 1.5; color: #637958; display: flex; align-items: center; gap: 5px; cursor: text; }
+.inline-recruiting-label svg { width: 11px; height: 11px; color: #799864; opacity: .45; transition: opacity .15s; }
+.inline-recruiting-field:hover .inline-recruiting-label svg, .inline-recruiting-field:focus-within .inline-recruiting-label svg, .inline-recruiting-field.is-dirty .inline-recruiting-label svg { opacity: 1; }
+.inline-recruiting-control { display: flex; align-items: center; width: 100%; gap: 3px; min-height: 34px; background: #f9fbf6; border: 1px solid transparent; border-radius: 6px; transition: border-color .15s, background .15s, box-shadow .15s; }
+.inline-recruiting-field:hover .inline-recruiting-control { background: #f3f7ed; border-color: #dce6d3; }
+.inline-recruiting-field:focus-within .inline-recruiting-control { background: #fff; border-color: #9cb98b; box-shadow: 0 0 0 2px #9cb98b16; }
+.inline-recruiting-field.is-dirty .inline-recruiting-control { border-color: #b4cba4; }
+.inline-recruiting-control input, .inline-recruiting-control select, .inline-recruiting-control textarea { appearance: auto; flex: 1 1 auto; min-width: 0; width: 100%; max-width: 100%; min-height: 32px; padding: 6px 8px; margin: 0; border: 0; border-radius: 5px; background: transparent; color: #354d2e; font-size: 12px; font-weight: 450; line-height: 1.5; }
+.inline-recruiting-control input::placeholder, .inline-recruiting-control textarea::placeholder { color: #889a79; font-weight: 400; }
+.inline-recruiting-control select { cursor: pointer; }
+.inline-recruiting-control input:focus-visible, .inline-recruiting-control select:focus-visible, .inline-recruiting-control textarea:focus-visible { outline: 2px solid #91bca2; outline-offset: -2px; }
+.inline-recruiting-control input + select { flex: 0 0 78px; width: 78px; border-left: 1px solid #e5eddc; border-radius: 0 5px 5px 0; font-size: 11px; padding-left: 7px; }
+.inline-recruiting-control .inline-currency { flex: 0 0 65px; width: 65px; border-left: 1px solid #e5eddc; border-radius: 0 5px 5px 0; text-transform: uppercase; }
+.inline-recruiting-caption { display: block; font-size: 10px; color: #7c8e70; margin: 4px 7px 0; }
+.inline-recruiting-control textarea { resize: vertical; min-height: 60px; }
+.inline-unit { padding: 0 10px 0 2px; font-size: 11px; color: #75896a; white-space: nowrap; }
+.inline-recruiting-actions { position: absolute; top: 0; right: 1px; display: flex; gap: 4px; align-items: center; min-height: 23px; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .15s; }
+.inline-recruiting-field:focus-within .inline-recruiting-actions, .inline-recruiting-field.is-dirty .inline-recruiting-actions { opacity: 1; visibility: visible; pointer-events: auto; }
+.inline-recruiting-actions button, .inline-recruiting-actions .button { height: 22px; min-height: 22px; width: auto; padding: 2px 7px; border-radius: 4px; border: 1px solid #d8e3cf; font-size: 10px; font-weight: 550; line-height: 1.4; background: #f4f8ee; color: #597b43; }
+.inline-recruiting-actions button[type='submit'] { background: #ebf3e2; border-color: #cbdcba; }
+.inline-recruiting-actions button:hover { background: #e3edd9; border-color: #b4cca0; }
+.inline-recruiting-actions button[type='button'] { border-color: transparent; background: transparent; color: #809474; }
+.inline-recruiting-actions button[type='button']:hover { color: #4f6e3b; background: #f0f5e9; }
+.inline-recruiting-error { color: #a35f4e; font-size: 10px; line-height: 1.5; margin: 5px 7px 0; }
+.inline-recruiting-error:empty { display: none; }
+.inline-recruiting-field:has(.inline-recruiting-error:not(:empty)) .inline-recruiting-control { border-color: #c99a8a; }
+.recruiting-details + .profile-links { margin-top: 16px; }
+
 .round-label { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; color: #7c9861; background: #edf4e5; font-size: 11px; font-weight: 600; }
 .round-result { border-top: 1px solid #e8eee0; padding-top: 13px; margin-top: 16px; color: #91a47e; }
 .round-card .section-title, .feedback-card .section-title { margin-top: 0; }
@@ -658,6 +695,22 @@ button.chip:hover { background: #e0ebd5; color: #577544; }
   .topbar-actions { flex: 1; justify-content: flex-end; }
   .stat-value > span { font-size: 9px; margin-left: 6px; }
   .drawer .score-card .score-bars { gap: 13px; }
+}
+@media (max-width: 520px) {
+  .recruiting-details { margin-top: 18px; padding-top: 15px; }
+  .recruiting-details-heading { align-items: flex-start; gap: 8px; }
+  .recruiting-details-heading small { max-width: 165px; text-align: right; font-size: 9px; }
+  .recruiting-fields { grid-template-columns: 1fr; gap: 11px; }
+  .inline-recruiting-label { padding-right: 82px; }
+  .inline-recruiting-control input, .inline-recruiting-control select, .inline-recruiting-control textarea { font-size: 16px; }
+}
+@media (hover: none), (pointer: coarse) {
+  .inline-recruiting-actions { opacity: 1; visibility: visible; pointer-events: auto; }
+  .inline-recruiting-label svg { opacity: 1; }
+  .inline-recruiting-control { border-color: #e0e8d9; background: #f6f9f1; }
+  .inline-recruiting-control input, .inline-recruiting-control select, .inline-recruiting-control textarea { min-height: 38px; }
+  .inline-recruiting-actions button, .inline-recruiting-actions .button { min-height: 26px; height: 26px; padding: 3px 8px; }
+  .inline-recruiting-label { min-height: 29px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
