@@ -1,0 +1,2313 @@
+{
+  "schema_version": "1.0",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "notes": [
+    "Template rỗng: không có dữ liệu cá nhân demo và chưa kết nối Drive, AI, email, Calendly hoặc automation.",
+    "ID lưu text và do backend tạo ổn định; mọi foreign key tham chiếu ID, không tham chiếu số dòng.",
+    "Trường percent lưu số 0–1, hiển thị %. Trống nghĩa chưa biết, không mặc định 0.",
+    "date là ngày không giờ; datetime là timestamp có múi giờ theo backend. Khi xuất/migrate dùng ISO 8601.",
+    "JSON lưu dưới dạng chuỗi JSON hợp lệ, giữ nguyên dữ liệu chi tiết khi migrate.",
+    "Form feedback và UI ATS đọc/ghi Sheet; các cập nhật phải kiểm tra dữ liệu mới nhất và giữ lịch sử.",
+    "Không tự gửi email từ status hoặc kéo thả. Gửi chỉ sau nút Send; template chưa triển khai hành động gửi.",
+    "D/T dựa trên loại và số vòng. Reschedule giữ round_id; mốc nhắc feedback tính từ interview thực tế, mốc thông báo tính từ quyết định.",
+    "Checkpoint 5 ngày và D+2/D+4 cần backend áp dụng quy tắc ngày làm việc/lịch đã chốt; Sheet chỉ lưu mốc và trạng thái.",
+    "Jobs giữ ref hiện hành; Feedback chụp ref/version đã dùng. Cần giữ nguyên bản tiêu chí cũ trên Drive khi chỉnh portrait."
+  ],
+  "sheets": [
+    {
+      "name": "Jobs",
+      "grain": "Một vị trí tuyển; giữ cả vị trí đã đóng để bảo toàn lịch sử.",
+      "primaryKey": "job_id",
+      "columns": [
+        {
+          "key": "job_id",
+          "label": "Mã vị trí",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định do hệ thống tạo; không dùng số dòng."
+        },
+        {
+          "key": "job_title",
+          "label": "Tên vị trí",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Recruiter",
+          "description": "Tên vị trí tuyển."
+        },
+        {
+          "key": "job_status",
+          "label": "Trạng thái vị trí",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Trạng thái tuyển; đóng role không xóa dữ liệu.",
+          "options": [
+            "draft",
+            "open",
+            "on_hold",
+            "closed"
+          ]
+        },
+        {
+          "key": "hiring_manager_name",
+          "label": "Tên HM",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Recruiter",
+          "description": "Tên hiring manager phụ trách."
+        },
+        {
+          "key": "hiring_manager_email",
+          "label": "Email HM",
+          "type": "email",
+          "required": "Tạo bản ghi",
+          "owner": "Recruiter",
+          "description": "Email HM nhận yêu cầu feedback."
+        },
+        {
+          "key": "recruiter_email",
+          "label": "Email recruiter",
+          "type": "email",
+          "required": "Tạo bản ghi",
+          "owner": "Recruiter",
+          "description": "Recruiter phụ trách chính."
+        },
+        {
+          "key": "headcount",
+          "label": "Số người cần tuyển",
+          "type": "integer",
+          "required": "Tạo bản ghi",
+          "owner": "Recruiter",
+          "description": "Số người cần tuyển; số nguyên dương."
+        },
+        {
+          "key": "jd_document_id",
+          "label": "Mã tài liệu JD",
+          "type": "text",
+          "required": "Khi có JD",
+          "owner": "Drive",
+          "description": "Liên kết tới Documents.document_id của JD."
+        },
+        {
+          "key": "hm_brief_url",
+          "label": "Link brief HM",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Link brief và personal taste của HM trên Drive."
+        },
+        {
+          "key": "criteria_url",
+          "label": "Link bộ tiêu chí",
+          "type": "url",
+          "required": "Khi bắt đầu đánh giá",
+          "owner": "Recruiter",
+          "description": "Link bộ tiêu chí/candidate portrait theo role; nội dung cấu hình nằm ngoài database này."
+        },
+        {
+          "key": "criteria_version",
+          "label": "Phiên bản tiêu chí",
+          "type": "text",
+          "required": "Khi bắt đầu đánh giá",
+          "owner": "UI",
+          "description": "Nhãn phiên bản hiện hành; đánh giá phải chụp lại ref/version đã dùng."
+        },
+        {
+          "key": "drive_inbox_url",
+          "label": "Folder nhận CV",
+          "type": "url",
+          "required": "Khi bật nhận CV",
+          "owner": "Recruiter",
+          "description": "Folder Drive được gắn với role này; dùng để xác định job khi nhập CV."
+        },
+        {
+          "key": "calendly_url",
+          "label": "Link booking",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Link Calendly dùng trong email mời."
+        },
+        {
+          "key": "work_location",
+          "label": "Địa điểm làm việc",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Địa điểm theo brief."
+        },
+        {
+          "key": "work_mode",
+          "label": "Hình thức làm việc",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Hình thức làm việc.",
+          "options": [
+            "onsite",
+            "hybrid",
+            "remote"
+          ]
+        },
+        {
+          "key": "salary_min",
+          "label": "Lương tối thiểu",
+          "type": "number",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Mức thấp của salary range theo tiền tệ/kỳ/cơ sở lương bên cạnh."
+        },
+        {
+          "key": "salary_max",
+          "label": "Lương tối đa",
+          "type": "number",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Mức cao của salary range."
+        },
+        {
+          "key": "salary_currency",
+          "label": "Tiền tệ",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Mã tiền tệ ISO, ví dụ VND hoặc USD."
+        },
+        {
+          "key": "salary_period",
+          "label": "Kỳ lương",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Đơn vị thời gian của mức lương.",
+          "options": [
+            "monthly",
+            "annual",
+            "hourly"
+          ]
+        },
+        {
+          "key": "salary_basis",
+          "label": "Gross/net",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Cơ sở tính lương.",
+          "options": [
+            "gross",
+            "net"
+          ]
+        },
+        {
+          "key": "sourcing_started_date",
+          "label": "Ngày bắt đầu chạy tuyển",
+          "type": "date",
+          "required": "Khi bắt đầu chạy tuyển",
+          "owner": "Recruiter",
+          "description": "Mốc bắt đầu checkpoint 5 ngày; không mặc định là ngày upload JD."
+        },
+        {
+          "key": "target_hire_date",
+          "label": "Hạn cần người",
+          "type": "date",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ngày mục tiêu tuyển xong."
+        },
+        {
+          "key": "funnel_checkpoint_date",
+          "label": "Ngày checkpoint funnel",
+          "type": "date",
+          "required": "Khi bắt đầu chạy tuyển",
+          "owner": "Automation",
+          "description": "Ngày kiểm tra sau 5 ngày theo quy tắc ngày làm việc đã chốt; template không tự kích hoạt."
+        },
+        {
+          "key": "funnel_targets_json",
+          "label": "Mục tiêu funnel",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "JSON lưu mục tiêu checkpoint như profiles, qualified, interviews và kỳ đo; thiếu dữ liệu không suy thành 0."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Candidates",
+      "grain": "Một người trong candidate pool; cùng người có thể có nhiều Applications.",
+      "primaryKey": "candidate_id",
+      "columns": [
+        {
+          "key": "candidate_id",
+          "label": "Mã ứng viên",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định của một người; không tạo lại khi ứng tuyển role mới."
+        },
+        {
+          "key": "full_name",
+          "label": "Họ tên",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "AI",
+          "description": "Tên từ CV; recruiter có thể sửa trên UI."
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "type": "email",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Email ứng viên; cần có trước khi gửi email."
+        },
+        {
+          "key": "phone",
+          "label": "Số điện thoại",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Lưu text để giữ dấu + và số 0 đầu."
+        },
+        {
+          "key": "location",
+          "label": "Địa điểm",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Địa điểm hiện tại từ CV hoặc ứng viên."
+        },
+        {
+          "key": "timezone",
+          "label": "Múi giờ ứng viên",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Tên múi giờ IANA; không suy đoán khi chưa rõ."
+        },
+        {
+          "key": "linkedin_url",
+          "label": "LinkedIn",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Link hồ sơ LinkedIn."
+        },
+        {
+          "key": "github_url",
+          "label": "GitHub",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Link GitHub; trống nghĩa chưa có thông tin."
+        },
+        {
+          "key": "portfolio_url",
+          "label": "Portfolio",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Link portfolio/website cá nhân."
+        },
+        {
+          "key": "current_cv_document_id",
+          "label": "Mã CV hiện hành",
+          "type": "text",
+          "required": "Khi có CV",
+          "owner": "Automation",
+          "description": "Tham chiếu Documents; CV từng dùng được lưu riêng theo application/assessment."
+        },
+        {
+          "key": "source",
+          "label": "Nguồn đầu tiên",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Nguồn lần đầu đưa người này vào pool.",
+          "options": [
+            "drive_upload",
+            "direct_application",
+            "linkedin",
+            "referral",
+            "job_board",
+            "sourcing",
+            "other"
+          ]
+        },
+        {
+          "key": "source_url",
+          "label": "Link nguồn",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Link nguồn hồ sơ khi có."
+        },
+        {
+          "key": "open_to_work_status",
+          "label": "Trạng thái open to work",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Chỉ dùng verified khi có bằng chứng.",
+          "options": [
+            "unknown",
+            "verified",
+            "not_open"
+          ]
+        },
+        {
+          "key": "open_to_work_evidence_url",
+          "label": "Nguồn xác minh open to work",
+          "type": "url",
+          "required": "Khi xác minh open to work",
+          "owner": "AI",
+          "description": "Link hỗ trợ kết luận; chưa xác minh để trống."
+        },
+        {
+          "key": "open_to_work_checked_at",
+          "label": "Lần kiểm tra open to work",
+          "type": "datetime",
+          "required": "Khi xác minh open to work",
+          "owner": "AI",
+          "description": "Thời điểm kiểm tra nguồn."
+        },
+        {
+          "key": "notes",
+          "label": "Ghi chú chung",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ghi chú thuộc về người; feedback theo role/vòng lưu trong Feedback."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "grain": "Một lần ứng tuyển/xét tuyển của một ứng viên cho một vị trí.",
+      "primaryKey": "application_id",
+      "columns": [
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định cho lần tuyển; cùng người/role có thể có lần mới sau khi đóng."
+        },
+        {
+          "key": "candidate_id",
+          "label": "Mã ứng viên",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Candidates.candidate_id."
+        },
+        {
+          "key": "job_id",
+          "label": "Mã vị trí",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Jobs.job_id."
+        },
+        {
+          "key": "recruiter_email",
+          "label": "Recruiter xử lý",
+          "type": "email",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Recruiter phụ trách hồ sơ này."
+        },
+        {
+          "key": "source",
+          "label": "Nguồn cho lần ứng tuyển",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Nguồn riêng của lần ứng tuyển này.",
+          "options": [
+            "drive_upload",
+            "direct_application",
+            "linkedin",
+            "referral",
+            "job_board",
+            "sourcing",
+            "other"
+          ]
+        },
+        {
+          "key": "applied_at",
+          "label": "Thời điểm vào pipeline",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Ngày giờ ứng viên vào pipeline của vị trí."
+        },
+        {
+          "key": "stage",
+          "label": "Giai đoạn",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Giai đoạn hiện tại; số vòng nằm trong Rounds.",
+          "options": [
+            "sourced",
+            "screening",
+            "interview",
+            "test",
+            "offer",
+            "onboarding",
+            "closed"
+          ]
+        },
+        {
+          "key": "application_status",
+          "label": "Trạng thái hồ sơ",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Trạng thái hiện tại; rejected không đồng nghĩa đã gửi thư.",
+          "options": [
+            "active",
+            "on_hold",
+            "rejected",
+            "withdrawn",
+            "offer_declined",
+            "hired"
+          ]
+        },
+        {
+          "key": "stage_entered_at",
+          "label": "Thời điểm vào stage",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Cập nhật khi stage đổi; lịch sử lưu ActivityLog."
+        },
+        {
+          "key": "current_round_id",
+          "label": "Mã vòng hiện tại",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Tham chiếu Rounds.round_id; để trống trước khi tạo vòng."
+        },
+        {
+          "key": "cv_document_id",
+          "label": "CV dùng cho lần ứng tuyển",
+          "type": "text",
+          "required": "Khi có CV",
+          "owner": "Automation",
+          "description": "Phiên bản CV của lần ứng tuyển; không tự ghi đè quyết định khi CV mới đến."
+        },
+        {
+          "key": "latest_screening_feedback_id",
+          "label": "Đánh giá screening hiện hành",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Feedback; điểm/bằng chứng gốc lưu trong Feedback."
+        },
+        {
+          "key": "recruiter_decision",
+          "label": "Quyết định recruiter",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Quyết định cuối do recruiter ghi; AI không tự chốt.",
+          "options": [
+            "pending",
+            "review_more",
+            "proceed",
+            "reject",
+            "hold"
+          ]
+        },
+        {
+          "key": "decision_reason",
+          "label": "Lý do quyết định",
+          "type": "text",
+          "required": "Khi chốt quyết định",
+          "owner": "Recruiter",
+          "description": "Lý do đi tiếp/reject/hold; không tự điều chỉnh portrait."
+        },
+        {
+          "key": "decided_at",
+          "label": "Thời điểm quyết định",
+          "type": "datetime",
+          "required": "Khi chốt quyết định",
+          "owner": "Automation",
+          "description": "Ngày giờ chốt quyết định gần nhất."
+        },
+        {
+          "key": "decided_by",
+          "label": "Người quyết định",
+          "type": "text",
+          "required": "Khi chốt quyết định",
+          "owner": "UI",
+          "description": "Email/định danh recruiter chốt."
+        },
+        {
+          "key": "salary_expectation",
+          "label": "Mức lương mong muốn",
+          "type": "number",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Mức ứng viên cung cấp; ghi rõ currency, period và basis."
+        },
+        {
+          "key": "salary_currency",
+          "label": "Tiền tệ kỳ vọng",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Mã tiền tệ ISO."
+        },
+        {
+          "key": "salary_period",
+          "label": "Kỳ lương kỳ vọng",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Đơn vị thời gian.",
+          "options": [
+            "monthly",
+            "annual",
+            "hourly"
+          ]
+        },
+        {
+          "key": "salary_basis",
+          "label": "Gross/net kỳ vọng",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Cơ sở lương ứng viên cung cấp.",
+          "options": [
+            "gross",
+            "net"
+          ]
+        },
+        {
+          "key": "notice_period_days",
+          "label": "Notice period",
+          "type": "integer",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Số ngày notice period; chưa biết để trống."
+        },
+        {
+          "key": "available_start_date",
+          "label": "Ngày có thể bắt đầu",
+          "type": "date",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ngày bắt đầu ứng viên đề xuất."
+        },
+        {
+          "key": "closed_at",
+          "label": "Thời điểm đóng hồ sơ",
+          "type": "datetime",
+          "required": "Khi đóng hồ sơ",
+          "owner": "Automation",
+          "description": "Ngày giờ đóng; giữ lại lịch sử và candidate pool."
+        },
+        {
+          "key": "closure_reason",
+          "label": "Lý do kết thúc",
+          "type": "text",
+          "required": "Khi đóng hồ sơ",
+          "owner": "Recruiter",
+          "description": "Lý do reject, rút, từ chối offer hoặc kết thúc tuyển."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "grain": "Một tài liệu/phiên bản tài liệu trên Drive và tình trạng xử lý.",
+      "primaryKey": "document_id",
+      "columns": [
+        {
+          "key": "document_id",
+          "label": "Mã tài liệu",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định cho một phiên bản tài liệu."
+        },
+        {
+          "key": "document_type",
+          "label": "Loại tài liệu",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Loại tài liệu.",
+          "options": [
+            "cv",
+            "jd",
+            "test_package",
+            "test_submission",
+            "transcript",
+            "offer",
+            "other"
+          ]
+        },
+        {
+          "key": "candidate_id",
+          "label": "Mã ứng viên",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Candidates khi tài liệu thuộc ứng viên."
+        },
+        {
+          "key": "job_id",
+          "label": "Mã vị trí",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Jobs khi xác định được role."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications khi có."
+        },
+        {
+          "key": "round_id",
+          "label": "Mã vòng",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Rounds khi tài liệu thuộc vòng/test."
+        },
+        {
+          "key": "drive_file_id",
+          "label": "Drive file ID",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Drive",
+          "description": "ID file gốc trên Drive; dùng để nhận diện file."
+        },
+        {
+          "key": "file_url",
+          "label": "Link file",
+          "type": "url",
+          "required": "Tạo bản ghi",
+          "owner": "Drive",
+          "description": "Link CV/tài liệu gốc."
+        },
+        {
+          "key": "file_name",
+          "label": "Tên file",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Drive",
+          "description": "Tên file gốc; không dùng tên làm khóa."
+        },
+        {
+          "key": "file_version",
+          "label": "Phiên bản file",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Drive",
+          "description": "Revision/version hoặc nhãn snapshot; CV cập nhật tạo phiên bản mới."
+        },
+        {
+          "key": "version_status",
+          "label": "Trạng thái phiên bản",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Phiên bản hiện hành hoặc cũ; không xóa tài liệu cũ.",
+          "options": [
+            "current",
+            "superseded"
+          ]
+        },
+        {
+          "key": "received_at",
+          "label": "Thời điểm tiếp nhận",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm hệ thống nhận tài liệu."
+        },
+        {
+          "key": "source_folder_url",
+          "label": "Folder nguồn",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "Drive",
+          "description": "Folder giúp gắn role khi nhập CV."
+        },
+        {
+          "key": "processing_status",
+          "label": "Trạng thái AI xử lý",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Để UI hiển thị rõ CV chưa đọc/đang đọc/lỗi.",
+          "options": [
+            "queued",
+            "processing",
+            "completed",
+            "needs_review",
+            "failed"
+          ]
+        },
+        {
+          "key": "processed_at",
+          "label": "Thời điểm xử lý xong",
+          "type": "datetime",
+          "required": "Khi xử lý xong",
+          "owner": "Automation",
+          "description": "Thời điểm xử lý hoàn tất."
+        },
+        {
+          "key": "extracted_data_json",
+          "label": "Dữ liệu trích xuất",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "JSON dữ liệu từ tài liệu; giữ bằng chứng và trường chưa biết."
+        },
+        {
+          "key": "processing_error",
+          "label": "Lỗi xử lý",
+          "type": "text",
+          "required": "Khi xử lý lỗi",
+          "owner": "Automation",
+          "description": "Lỗi để xử lý lại; không ghi khóa bí mật vào Sheet."
+        },
+        {
+          "key": "content_fingerprint",
+          "label": "Dấu nhận diện nội dung",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Hash giúp nhận diện bản trùng; không dùng thay candidate ID."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Rounds",
+      "grain": "Một bước tuyển của một application: recruiter screen, D1–Dn hoặc T1–T2.",
+      "primaryKey": "round_id",
+      "columns": [
+        {
+          "key": "round_id",
+          "label": "Mã vòng",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định; đổi lịch giữ nguyên ID và ghi ActivityLog."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications."
+        },
+        {
+          "key": "round_type",
+          "label": "Loại vòng",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Recruiter screening tách khỏi D; interview và test có số riêng.",
+          "options": [
+            "recruiter_screen",
+            "hm_interview",
+            "test"
+          ]
+        },
+        {
+          "key": "round_number",
+          "label": "Số vòng",
+          "type": "integer",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Số nguyên từ 1; hm_interview hiển thị D1,D2…; test hiển thị T1,T2."
+        },
+        {
+          "key": "round_status",
+          "label": "Trạng thái vòng",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Trạng thái bước tuyển.",
+          "options": [
+            "planned",
+            "scheduled",
+            "in_progress",
+            "completed",
+            "cancelled",
+            "no_show"
+          ]
+        },
+        {
+          "key": "interviewers_json",
+          "label": "Danh sách interviewer",
+          "type": "json",
+          "required": "Khi tổ chức interview",
+          "owner": "Recruiter",
+          "description": "Mảng tên/email/vai trò; mỗi người cần feedback có một dòng Feedback riêng."
+        },
+        {
+          "key": "scheduled_start_at",
+          "label": "Bắt đầu dự kiến",
+          "type": "datetime",
+          "required": "Khi có lịch interview",
+          "owner": "Automation",
+          "description": "Lịch hiện tại; D thực tế chỉ tính khi interview diễn ra."
+        },
+        {
+          "key": "scheduled_end_at",
+          "label": "Kết thúc dự kiến",
+          "type": "datetime",
+          "required": "Khi có lịch interview",
+          "owner": "Automation",
+          "description": "Giờ kết thúc dự kiến."
+        },
+        {
+          "key": "timezone",
+          "label": "Múi giờ lịch",
+          "type": "text",
+          "required": "Khi có lịch",
+          "owner": "Automation",
+          "description": "Múi giờ IANA; tránh nhầm lịch ứng viên."
+        },
+        {
+          "key": "completed_at",
+          "label": "Thời điểm hoàn tất thực tế",
+          "type": "datetime",
+          "required": "Khi vòng hoàn tất",
+          "owner": "Recruiter",
+          "description": "Mốc interview hoàn tất để tính xin feedback; không điền chỉ vì đã có lịch."
+        },
+        {
+          "key": "meeting_url",
+          "label": "Link interview",
+          "type": "url",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Link họp hoặc địa điểm chi tiết."
+        },
+        {
+          "key": "calendly_booking_id",
+          "label": "Mã booking Calendly",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Mã booking giúp đồng bộ đổi/hủy lịch."
+        },
+        {
+          "key": "calendar_event_id",
+          "label": "Mã calendar event",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Event interview; không chứa ghi chú nội bộ gửi cho ứng viên."
+        },
+        {
+          "key": "prep_event_id",
+          "label": "Mã lịch prep",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Event/buffer nội bộ 15 phút chứa CV và câu hỏi."
+        },
+        {
+          "key": "prep_status",
+          "label": "Trạng thái chuẩn bị",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tình trạng event prep/nội dung personalized.",
+          "options": [
+            "pending",
+            "ready",
+            "failed",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "cv_document_id",
+          "label": "CV dùng trong vòng",
+          "type": "text",
+          "required": "Khi chuẩn bị interview",
+          "owner": "Automation",
+          "description": "Tham chiếu đúng phiên bản CV."
+        },
+        {
+          "key": "personalized_questions_json",
+          "label": "Câu hỏi personalized",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Mảng câu hỏi, mục tiêu kiểm tra và bằng chứng CV liên quan."
+        },
+        {
+          "key": "test_package_document_ids_json",
+          "label": "Tài liệu đề test",
+          "type": "json",
+          "required": "Khi gửi test",
+          "owner": "Recruiter",
+          "description": "Mảng Documents ID của đề/attachments; cần kiểm tra đúng bộ test trước khi gửi."
+        },
+        {
+          "key": "test_instructions",
+          "label": "Hướng dẫn test",
+          "type": "text",
+          "required": "Khi gửi test",
+          "owner": "Recruiter",
+          "description": "Hướng dẫn, cách nộp và thông tin ứng viên cần biết."
+        },
+        {
+          "key": "test_sent_at",
+          "label": "Thời điểm gửi test",
+          "type": "datetime",
+          "required": "Khi gửi test thành công",
+          "owner": "Automation",
+          "description": "Chỉ ghi sau khi email/test gửi thành công."
+        },
+        {
+          "key": "test_planned_date",
+          "label": "Ngày làm test T",
+          "type": "date",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ngày T1/T2 nếu có lịch cố định; test take-home không biết ngày làm thì để trống."
+        },
+        {
+          "key": "test_due_at",
+          "label": "Hạn nộp test",
+          "type": "datetime",
+          "required": "Khi gửi test",
+          "owner": "Recruiter",
+          "description": "Deadline test take-home; độc lập với ngày gửi/ngày làm/ngày nộp."
+        },
+        {
+          "key": "test_submitted_at",
+          "label": "Thời điểm nộp test",
+          "type": "datetime",
+          "required": "Khi nhận bài",
+          "owner": "Automation",
+          "description": "Thời điểm nhận bài thực tế."
+        },
+        {
+          "key": "test_submission_document_ids_json",
+          "label": "Tài liệu bài nộp",
+          "type": "json",
+          "required": "Khi nhận bài",
+          "owner": "Automation",
+          "description": "Mảng Documents ID của bài nộp."
+        },
+        {
+          "key": "test_status",
+          "label": "Trạng thái test",
+          "type": "text",
+          "required": "Khi là vòng test",
+          "owner": "UI",
+          "description": "Không suy overdue chỉ từ ngày T.",
+          "options": [
+            "not_sent",
+            "sent",
+            "submitted",
+            "overdue",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "final_decision",
+          "label": "Quyết định sau vòng",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Quyết định recruiter sau khi tổng hợp feedback.",
+          "options": [
+            "pending",
+            "proceed",
+            "reject",
+            "reconsider"
+          ]
+        },
+        {
+          "key": "decision_reason",
+          "label": "Lý do quyết định vòng",
+          "type": "text",
+          "required": "Khi chốt vòng",
+          "owner": "Recruiter",
+          "description": "Lý do chốt vòng; feedback từng người được giữ riêng."
+        },
+        {
+          "key": "decided_at",
+          "label": "Thời điểm chốt vòng",
+          "type": "datetime",
+          "required": "Khi chốt vòng",
+          "owner": "Automation",
+          "description": "Mốc quyết định dùng cho task thông báo kết quả."
+        },
+        {
+          "key": "decided_by",
+          "label": "Người chốt vòng",
+          "type": "text",
+          "required": "Khi chốt vòng",
+          "owner": "UI",
+          "description": "Người đưa quyết định cuối."
+        },
+        {
+          "key": "reschedule_count",
+          "label": "Số lần đổi lịch",
+          "type": "integer",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tăng khi đổi lịch; số vòng D/T không tăng."
+        },
+        {
+          "key": "cancellation_reason",
+          "label": "Lý do hủy vòng",
+          "type": "text",
+          "required": "Khi hủy vòng",
+          "owner": "Recruiter",
+          "description": "Lý do hủy; các task phụ thuộc phải được hủy tương ứng."
+        },
+        {
+          "key": "no_show_party",
+          "label": "Bên không tham dự",
+          "type": "text",
+          "required": "Khi no-show",
+          "owner": "Recruiter",
+          "description": "Bên không tham dự.",
+          "options": [
+            "candidate",
+            "interviewer",
+            "both",
+            "unknown"
+          ]
+        },
+        {
+          "key": "no_show_reason",
+          "label": "Lý do no-show",
+          "type": "text",
+          "required": "Khi no-show",
+          "owner": "Recruiter",
+          "description": "Chỉ ghi lý do đã biết; chưa biết ghi chưa rõ."
+        },
+        {
+          "key": "no_show_reason_source",
+          "label": "Nguồn xác nhận lý do",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ứng viên/HM/email cung cấp lý do; không suy đoán."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "grain": "Một yêu cầu phản hồi/lượt phản hồi hoặc một đánh giá AI; mỗi HM/interviewer có bản ghi riêng.",
+      "primaryKey": "feedback_id",
+      "columns": [
+        {
+          "key": "feedback_id",
+          "label": "Mã feedback",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định của yêu cầu hoặc kết quả đánh giá."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications."
+        },
+        {
+          "key": "round_id",
+          "label": "Mã vòng",
+          "type": "text",
+          "required": "Khi feedback theo vòng",
+          "owner": "Automation",
+          "description": "Để trống đối với AI screening/feedback chung trước vòng."
+        },
+        {
+          "key": "feedback_type",
+          "label": "Loại feedback",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Nguồn phản hồi/đánh giá.",
+          "options": [
+            "interviewer",
+            "recruiter",
+            "candidate",
+            "ai_screening",
+            "ai_interview",
+            "ai_test"
+          ]
+        },
+        {
+          "key": "author_name",
+          "label": "Tên người phản hồi",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Tên người được yêu cầu/người đã phản hồi; AI ghi tên hệ thống."
+        },
+        {
+          "key": "author_email",
+          "label": "Email người phản hồi",
+          "type": "email",
+          "required": "Khi xin feedback người thật",
+          "owner": "UI",
+          "description": "Dùng để biết người nào còn chưa trả lời."
+        },
+        {
+          "key": "requested_at",
+          "label": "Thời điểm yêu cầu",
+          "type": "datetime",
+          "required": "Khi xin feedback",
+          "owner": "Automation",
+          "description": "Tạo bản ghi pending khi gửi yêu cầu; không đợi có feedback mới tạo."
+        },
+        {
+          "key": "due_at",
+          "label": "Hạn phản hồi",
+          "type": "datetime",
+          "required": "Khi xin feedback",
+          "owner": "Automation",
+          "description": "Hạn xin feedback theo vòng."
+        },
+        {
+          "key": "submitted_at",
+          "label": "Thời điểm nhận feedback",
+          "type": "datetime",
+          "required": "Khi nhận feedback",
+          "owner": "Automation",
+          "description": "Thời điểm submit form/ghi feedback."
+        },
+        {
+          "key": "feedback_status",
+          "label": "Trạng thái feedback",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Pending dùng cho phản hồi đang chờ.",
+          "options": [
+            "pending",
+            "submitted",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "criteria_url_used",
+          "label": "Tiêu chí đã dùng",
+          "type": "url",
+          "required": "Khi có đánh giá theo tiêu chí",
+          "owner": "Automation",
+          "description": "Chụp lại link bộ tiêu chí tại thời điểm đánh giá."
+        },
+        {
+          "key": "criteria_version_used",
+          "label": "Phiên bản tiêu chí đã dùng",
+          "type": "text",
+          "required": "Khi có đánh giá theo tiêu chí",
+          "owner": "Automation",
+          "description": "Không cập nhật theo phiên bản mới của Jobs."
+        },
+        {
+          "key": "cv_document_id",
+          "label": "CV đã đánh giá",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Phiên bản CV được dùng."
+        },
+        {
+          "key": "source_document_ids_json",
+          "label": "Tài liệu làm căn cứ",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Mảng Documents ID: CV, transcript, bài test…"
+        },
+        {
+          "key": "recommendation",
+          "label": "Đề xuất",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Đề xuất AI/người phản hồi; không tự đổi thành quyết định cuối.",
+          "options": [
+            "review_more",
+            "proceed",
+            "reject",
+            "reconsider",
+            "not_applicable"
+          ]
+        },
+        {
+          "key": "fit_score",
+          "label": "Điểm phù hợp",
+          "type": "percent",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Lưu số 0–1 và hiển thị %; điểm đáp ứng trên phần đã đánh giá, không phải xác suất tuyển thành công."
+        },
+        {
+          "key": "coverage_score",
+          "label": "Mức đủ thông tin",
+          "type": "percent",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Lưu số 0–1; tỷ trọng tiêu chí đã đánh giá được. Trống khác với 0."
+        },
+        {
+          "key": "summary",
+          "label": "Tóm tắt feedback",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Feedback tổng quan; AI cũng có thể ghi đánh giá tại đây."
+        },
+        {
+          "key": "strengths",
+          "label": "Điểm mạnh",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Điểm mạnh kèm thông tin thực tế."
+        },
+        {
+          "key": "concerns",
+          "label": "Concerns",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Concern/điểm chưa xác nhận; thiếu thông tin không mặc định mismatch."
+        },
+        {
+          "key": "answers_json",
+          "label": "Câu trả lời chi tiết",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Giữ criterion ID/nhãn/câu hỏi/câu trả lời/điểm/thang điểm đã dùng, hỗ trợ form khác nhau theo role."
+        },
+        {
+          "key": "evidence_json",
+          "label": "Bằng chứng đánh giá",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Giữ criterion ID, kết quả đáp ứng/chưa đáp ứng/chưa rõ, trọng số, trích dẫn và nguồn."
+        },
+        {
+          "key": "followup_questions_json",
+          "label": "Câu cần đào sâu",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "AI",
+          "description": "Mảng câu hỏi bổ sung theo phản hồi."
+        },
+        {
+          "key": "change_scope",
+          "label": "Phạm vi điều chỉnh",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Phân biệt ngoại lệ hồ sơ với đề xuất chỉnh portrait.",
+          "options": [
+            "not_applicable",
+            "application_only",
+            "role_portrait"
+          ]
+        },
+        {
+          "key": "portrait_change_proposal",
+          "label": "Đề xuất chỉnh portrait",
+          "type": "text",
+          "required": "Khi đề xuất chỉnh portrait",
+          "owner": "AI",
+          "description": "Nội dung/lý do đề xuất; không tự thay bộ tiêu chí chỉ vì một feedback."
+        },
+        {
+          "key": "form_url",
+          "label": "Link form feedback",
+          "type": "url",
+          "required": "Khi xin feedback qua form",
+          "owner": "Automation",
+          "description": "Link form của đúng người/ứng viên/vòng; quyền truy cập do backend quản lý."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "grain": "Một công việc cụ thể của recruiter; daily brief đọc các task còn hiệu lực.",
+      "primaryKey": "task_id",
+      "columns": [
+        {
+          "key": "task_id",
+          "label": "Mã task",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định cho một công việc."
+        },
+        {
+          "key": "job_id",
+          "label": "Mã vị trí",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Jobs; checkpoint role chỉ cần job_id."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications khi việc thuộc hồ sơ."
+        },
+        {
+          "key": "round_id",
+          "label": "Mã vòng",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Rounds khi việc thuộc vòng."
+        },
+        {
+          "key": "task_type",
+          "label": "Loại công việc",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Loại công việc trên daily brief.",
+          "options": [
+            "review_cv",
+            "send_approach",
+            "send_test",
+            "send_thank_you",
+            "prepare_interview",
+            "attend_interview",
+            "request_feedback",
+            "followup_feedback",
+            "ask_next_availability",
+            "followup_test",
+            "discuss_salary",
+            "funnel_checkpoint",
+            "review_portrait",
+            "start_onboarding",
+            "other"
+          ]
+        },
+        {
+          "key": "title",
+          "label": "Tên việc",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Nội dung ngắn hiển thị trong brief."
+        },
+        {
+          "key": "description",
+          "label": "Chi tiết việc",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Thông tin giúp thực hiện ngay."
+        },
+        {
+          "key": "assignee_email",
+          "label": "Người phụ trách",
+          "type": "email",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Recruiter cần xử lý."
+        },
+        {
+          "key": "due_at",
+          "label": "Hạn xử lý",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Hạn theo sự kiện thực tế và quy tắc ngày đã chốt."
+        },
+        {
+          "key": "priority",
+          "label": "Ưu tiên",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Mức ưu tiên.",
+          "options": [
+            "low",
+            "normal",
+            "high"
+          ]
+        },
+        {
+          "key": "task_status",
+          "label": "Trạng thái việc",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Xuất hiện trong brief không đồng nghĩa đã hoàn tất.",
+          "options": [
+            "open",
+            "in_progress",
+            "snoozed",
+            "done",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "trigger_type",
+          "label": "Loại sự kiện tạo việc",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Nguồn kích hoạt; template không tự chạy.",
+          "options": [
+            "manual",
+            "cv_received",
+            "round_scheduled",
+            "round_completed",
+            "feedback_received",
+            "decision_recorded",
+            "email_sent",
+            "offer_changed",
+            "job_checkpoint"
+          ]
+        },
+        {
+          "key": "trigger_id",
+          "label": "Mã sự kiện nguồn",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "ID bản ghi/event đã tạo việc."
+        },
+        {
+          "key": "related_feedback_id",
+          "label": "Feedback liên quan",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Feedback; dùng để hủy việc đòi feedback đã nhận."
+        },
+        {
+          "key": "related_email_id",
+          "label": "Email liên quan",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Emails; gửi thành công mới hoàn tất task gửi."
+        },
+        {
+          "key": "dedupe_key",
+          "label": "Khóa chống trùng task",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Khóa duy nhất từ loại việc + bản ghi/sự kiện nguồn."
+        },
+        {
+          "key": "snoozed_until",
+          "label": "Hoãn đến",
+          "type": "datetime",
+          "required": "Khi hoãn việc",
+          "owner": "Recruiter",
+          "description": "Ngày giờ việc trở lại brief."
+        },
+        {
+          "key": "completed_at",
+          "label": "Thời điểm hoàn tất",
+          "type": "datetime",
+          "required": "Khi hoàn tất việc",
+          "owner": "Automation",
+          "description": "Thời điểm hoàn tất thực tế."
+        },
+        {
+          "key": "cancellation_reason",
+          "label": "Lý do hủy việc",
+          "type": "text",
+          "required": "Khi hủy việc",
+          "owner": "Automation",
+          "description": "Ví dụ đã nhận feedback, đổi/hủy lịch hoặc ứng viên rút."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Emails",
+      "grain": "Một email draft/lượt gửi; chỉ gửi khi recruiter bấm Send trong UI.",
+      "primaryKey": "email_id",
+      "columns": [
+        {
+          "key": "email_id",
+          "label": "Mã email",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định; giữ kết quả để chống gửi trùng."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications."
+        },
+        {
+          "key": "round_id",
+          "label": "Mã vòng",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Rounds khi email thuộc vòng."
+        },
+        {
+          "key": "task_id",
+          "label": "Mã task",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tham chiếu Tasks để hoàn tất việc sau khi gửi thành công."
+        },
+        {
+          "key": "email_type",
+          "label": "Loại email",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Loại email ứng viên.",
+          "options": [
+            "approach",
+            "interview_invitation",
+            "test",
+            "thank_you",
+            "progress_update",
+            "next_round",
+            "offer",
+            "other"
+          ]
+        },
+        {
+          "key": "to_email",
+          "label": "Người nhận",
+          "type": "email",
+          "required": "Khi chuẩn bị gửi",
+          "owner": "UI",
+          "description": "Email nhận; UI cần cho kiểm tra trước khi bấm Send."
+        },
+        {
+          "key": "cc_emails_json",
+          "label": "CC",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Mảng email CC; không tự thêm người nhận."
+        },
+        {
+          "key": "subject",
+          "label": "Tiêu đề",
+          "type": "text",
+          "required": "Khi chuẩn bị gửi",
+          "owner": "UI",
+          "description": "Tiêu đề cuối được gửi."
+        },
+        {
+          "key": "body",
+          "label": "Nội dung",
+          "type": "text",
+          "required": "Khi chuẩn bị gửi",
+          "owner": "UI",
+          "description": "Nội dung cuối; UI cho chỉnh sửa."
+        },
+        {
+          "key": "template_id",
+          "label": "Mã template",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Template dùng để soạn email."
+        },
+        {
+          "key": "template_version",
+          "label": "Phiên bản template",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Phiên bản tại lúc soạn."
+        },
+        {
+          "key": "attachment_document_ids_json",
+          "label": "Attachments",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Mảng Documents ID; UI kiểm tra đúng file và quyền truy cập."
+        },
+        {
+          "key": "email_status",
+          "label": "Trạng thái email",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Draft/ready không tự kích hoạt gửi. Sent chỉ sau khi dịch vụ xác nhận gửi.",
+          "options": [
+            "draft",
+            "ready",
+            "sending",
+            "sent",
+            "failed",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "prepared_at",
+          "label": "Thời điểm soạn",
+          "type": "datetime",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Thời điểm tạo draft."
+        },
+        {
+          "key": "send_requested_by",
+          "label": "Người bấm Send",
+          "type": "text",
+          "required": "Khi bấm Send",
+          "owner": "UI",
+          "description": "Email/định danh recruiter bấm nút."
+        },
+        {
+          "key": "send_requested_at",
+          "label": "Thời điểm bấm Send",
+          "type": "datetime",
+          "required": "Khi bấm Send",
+          "owner": "Automation",
+          "description": "Thời điểm yêu cầu; khác với gửi thành công."
+        },
+        {
+          "key": "sent_at",
+          "label": "Thời điểm gửi thành công",
+          "type": "datetime",
+          "required": "Khi gửi thành công",
+          "owner": "Automation",
+          "description": "Chỉ ghi khi gửi thành công; không đồng nghĩa đã đọc/đã nhận."
+        },
+        {
+          "key": "provider_message_id",
+          "label": "Mã email dịch vụ",
+          "type": "text",
+          "required": "Khi gửi thành công",
+          "owner": "Automation",
+          "description": "Message ID trả về từ dịch vụ email."
+        },
+        {
+          "key": "provider_thread_id",
+          "label": "Mã email thread",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Thread ID nếu có."
+        },
+        {
+          "key": "last_error",
+          "label": "Lỗi gửi",
+          "type": "text",
+          "required": "Khi gửi lỗi",
+          "owner": "Automation",
+          "description": "Lỗi gần nhất; task vẫn chưa hoàn tất."
+        },
+        {
+          "key": "dedupe_key",
+          "label": "Khóa chống gửi trùng",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Khóa ổn định cho mục đích gửi và hồ sơ/vòng."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "grain": "Một phiên bản đề xuất/offer của một application; chấp nhận lương tách khỏi nhận offer chính thức.",
+      "primaryKey": "offer_id",
+      "columns": [
+        {
+          "key": "offer_id",
+          "label": "Mã offer",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định của một phiên bản offer."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tham chiếu Applications."
+        },
+        {
+          "key": "offer_version",
+          "label": "Phiên bản offer",
+          "type": "integer",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Số phiên bản từ 1; điều khoản sửa tạo bản mới để giữ lịch sử."
+        },
+        {
+          "key": "negotiation_status",
+          "label": "Trạng thái deal lương",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Thỏa thuận mức lương chưa mặc định đã nhận offer.",
+          "options": [
+            "not_started",
+            "in_progress",
+            "agreed",
+            "declined"
+          ]
+        },
+        {
+          "key": "offer_status",
+          "label": "Trạng thái offer chính thức",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "UI",
+          "description": "Trạng thái thư offer.",
+          "options": [
+            "draft",
+            "prepared",
+            "sent",
+            "accepted",
+            "declined",
+            "expired",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "base_salary",
+          "label": "Lương cơ bản offer",
+          "type": "number",
+          "required": "Khi chuẩn bị offer",
+          "owner": "Recruiter",
+          "description": "Mức lương theo currency/period/basis bên cạnh."
+        },
+        {
+          "key": "salary_currency",
+          "label": "Tiền tệ offer",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Mã tiền tệ ISO."
+        },
+        {
+          "key": "salary_period",
+          "label": "Kỳ lương offer",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Đơn vị thời gian.",
+          "options": [
+            "monthly",
+            "annual",
+            "hourly"
+          ]
+        },
+        {
+          "key": "salary_basis",
+          "label": "Gross/net offer",
+          "type": "text",
+          "required": "Khi nhập mức lương",
+          "owner": "Recruiter",
+          "description": "Cơ sở tính lương.",
+          "options": [
+            "gross",
+            "net"
+          ]
+        },
+        {
+          "key": "compensation_details_json",
+          "label": "Compensation khác",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Bonus, allowance, benefits, equity và điều khoản bổ sung nếu có."
+        },
+        {
+          "key": "offer_document_id",
+          "label": "Tài liệu offer",
+          "type": "text",
+          "required": "Khi có thư offer",
+          "owner": "Recruiter",
+          "description": "Tham chiếu Documents của bản offer."
+        },
+        {
+          "key": "issued_at",
+          "label": "Thời điểm gửi offer",
+          "type": "datetime",
+          "required": "Khi gửi offer thành công",
+          "owner": "Automation",
+          "description": "Thời điểm gửi bản offer chính thức."
+        },
+        {
+          "key": "response_due_at",
+          "label": "Hạn phản hồi offer",
+          "type": "datetime",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Hạn phản hồi được thông báo."
+        },
+        {
+          "key": "candidate_responded_at",
+          "label": "Thời điểm ứng viên phản hồi",
+          "type": "datetime",
+          "required": "Khi nhận phản hồi offer",
+          "owner": "UI",
+          "description": "Thời điểm phản hồi; chi tiết có thể lưu thêm trong Feedback."
+        },
+        {
+          "key": "candidate_response_reason",
+          "label": "Phản hồi/lý do của ứng viên",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Lý do từ chối, điều kiện đề nghị hoặc ghi chú xác nhận."
+        },
+        {
+          "key": "accepted_at",
+          "label": "Thời điểm nhận offer",
+          "type": "datetime",
+          "required": "Khi nhận offer chính thức",
+          "owner": "UI",
+          "description": "Thời điểm xác nhận nhận offer, tách khỏi agreed mức lương."
+        },
+        {
+          "key": "agreed_start_date",
+          "label": "Ngày bắt đầu đã chốt",
+          "type": "date",
+          "required": "Khi chốt nhận offer",
+          "owner": "Recruiter",
+          "description": "Ngày bắt đầu được hai bên xác nhận."
+        },
+        {
+          "key": "onboarding_status",
+          "label": "Trạng thái onboarding",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Theo dõi bước chuyển giao onboarding.",
+          "options": [
+            "not_started",
+            "pending_start",
+            "in_progress",
+            "completed",
+            "cancelled"
+          ]
+        },
+        {
+          "key": "onboarding_owner_email",
+          "label": "Người phụ trách onboarding",
+          "type": "email",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Người nhận chuyển giao."
+        },
+        {
+          "key": "onboarding_notes",
+          "label": "Ghi chú onboarding",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Recruiter",
+          "description": "Ghi chú/checklist/link chuyển giao."
+        },
+        {
+          "key": "created_at",
+          "label": "Thời điểm tạo",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm tạo bản ghi; lưu cố định, không dùng NOW()."
+        },
+        {
+          "key": "updated_at",
+          "label": "Thời điểm cập nhật",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm cập nhật gần nhất."
+        },
+        {
+          "key": "updated_by",
+          "label": "Người cập nhật",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email hoặc định danh của người/hệ thống cập nhật."
+        }
+      ]
+    },
+    {
+      "name": "ActivityLog",
+      "grain": "Một sự kiện/thay đổi; append-only, không sửa/xóa lịch sử.",
+      "primaryKey": "activity_id",
+      "columns": [
+        {
+          "key": "activity_id",
+          "label": "Mã sự kiện",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "ID ổn định của sự kiện."
+        },
+        {
+          "key": "occurred_at",
+          "label": "Thời điểm xảy ra",
+          "type": "datetime",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Thời điểm sự kiện thực tế."
+        },
+        {
+          "key": "actor",
+          "label": "Người/hệ thống thực hiện",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Email người thao tác hoặc định danh hệ thống."
+        },
+        {
+          "key": "source",
+          "label": "Nguồn thao tác",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Nguồn tạo sự kiện.",
+          "options": [
+            "drive",
+            "ats_ui",
+            "feedback_form",
+            "automation",
+            "ai",
+            "calendar",
+            "email"
+          ]
+        },
+        {
+          "key": "entity_type",
+          "label": "Loại bản ghi",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Tab/bản ghi bị tác động.",
+          "options": [
+            "Jobs",
+            "Candidates",
+            "Applications",
+            "Documents",
+            "Rounds",
+            "Feedback",
+            "Tasks",
+            "Emails",
+            "Offers"
+          ]
+        },
+        {
+          "key": "entity_id",
+          "label": "Mã bản ghi",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Primary key của bản ghi bị tác động."
+        },
+        {
+          "key": "job_id",
+          "label": "Mã vị trí",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Giữ liên kết role cho thống kê/lịch sử."
+        },
+        {
+          "key": "application_id",
+          "label": "Mã lần ứng tuyển",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Giữ liên kết application cho timeline."
+        },
+        {
+          "key": "action",
+          "label": "Hành động",
+          "type": "text",
+          "required": "Tạo bản ghi",
+          "owner": "Automation",
+          "description": "Hành động phát sinh.",
+          "options": [
+            "create",
+            "update",
+            "status_change",
+            "reschedule",
+            "send_requested",
+            "email_sent",
+            "email_failed",
+            "feedback_submitted",
+            "ai_assessment",
+            "task_completed",
+            "cancel"
+          ]
+        },
+        {
+          "key": "field_name",
+          "label": "Trường thay đổi",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Tên header nếu thay một trường; để trống nếu snapshot nhiều trường."
+        },
+        {
+          "key": "old_value_json",
+          "label": "Giá trị trước",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "JSON giá trị/snapshot trước thay đổi."
+        },
+        {
+          "key": "new_value_json",
+          "label": "Giá trị sau",
+          "type": "json",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "JSON giá trị/snapshot sau thay đổi."
+        },
+        {
+          "key": "reason",
+          "label": "Lý do",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "UI",
+          "description": "Lý do đổi status/override/đổi lịch."
+        },
+        {
+          "key": "correlation_id",
+          "label": "Mã chuỗi thao tác",
+          "type": "text",
+          "required": "Tùy chọn",
+          "owner": "Automation",
+          "description": "Liên kết các sự kiện trong cùng thao tác; giúp truy lỗi và chống lặp."
+        }
+      ]
+    }
+  ]
+}
