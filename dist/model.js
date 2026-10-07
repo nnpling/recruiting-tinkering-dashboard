@@ -187,6 +187,32 @@ export function completeTask(state,taskId) {
   stamp(state,task); log(state,'Tasks',task,'task_completed',before,task);
   return task;
 }
+export function getTaskUndoBlockReason(state,taskId) {
+  const task=state.tables.Tasks.find(task=>task.task_id===taskId);
+  if (!task) return 'Không tìm thấy công việc để hoàn tác.';
+  if (task.task_status!=='done') return 'Chỉ có thể hoàn tác công việc đã hoàn thành.';
+  const application=task.application_id?state.tables.Applications.find(app=>app.application_id===task.application_id):null;
+  if (task.task_type!=='send_thank_you' && application && (application.stage==='closed' || terminal.has(application.application_status))) {
+    return 'Hồ sơ đã đóng. Mở lại hồ sơ ứng viên trước khi Undo công việc này.';
+  }
+  if (['prepare_interview','attend_interview'].includes(task.task_type) && task.round_id) {
+    const round=state.tables.Rounds.find(round=>round.round_id===task.round_id);
+    if (round && ['completed','cancelled','no_show'].includes(round.round_status)) {
+      const statusText={completed:'đã hoàn thành',cancelled:'đã bị hủy',no_show:'ghi nhận vắng mặt'}[round.round_status];
+      return `Vòng tuyển dụng ${statusText}. Không thể mở lại nhắc chuẩn bị hoặc tham gia lịch này.`;
+    }
+  }
+  return '';
+}
+export function undoTaskCompletion(state,taskId) {
+  const blockReason=getTaskUndoBlockReason(state,taskId);
+  if (blockReason) throw new Error(blockReason);
+  const task=row(state,'Tasks',taskId);
+  const before=clone(task);
+  task.task_status='open'; task.completed_at=''; task.snoozed_until='';
+  stamp(state,task); log(state,'Tasks',task,'status_change',before,task,'Hoàn tác đánh dấu hoàn thành','task_status');
+  return task;
+}
 export function createCandidate(state,fields) {
   const job=row(state,'Jobs',fields.job_id);
   if (!text(fields.full_name)) throw new Error('Điền tên ứng viên.');

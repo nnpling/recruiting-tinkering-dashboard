@@ -280,7 +280,7 @@ export function recruitingGoalTemplate() {
     success_criteria:'Chạy thử trọn quy trình với một job; thông tin ứng viên, feedback và lịch sử được lưu lâu dài; các thao tác trên ATS đọc và ghi đúng database; recruiter duyệt quyết định và email trước khi gửi.',
     category:'recruiting', owner:'', target_date:'', priority:'normal',
     tasks:[
-      {title:'Chốt workflow tuyển dụng',description:'Chốt screening, D1–Dn, T1–T2, quyết định, nhắc việc và các tình huống ngoại lệ. Đối chiếu workflow đã thảo luận trước khi xác nhận xong.',status:'todo'},
+      {title:'Chốt workflow tuyển dụng',description:'Chốt screening, các interview round, Test 1–2, quyết định, nhắc việc và các tình huống ngoại lệ. Đối chiếu workflow đã thảo luận trước khi xác nhận xong.',status:'todo'},
       {title:'Hoàn thiện database lưu thông tin lâu dài',description:'Đã có Google Sheet Recruiting Database. Review các trường, hồ sơ ứng viên, feedback, lịch sử và cách sao lưu/migrate; xác nhận phù hợp trước khi đánh dấu xong.',status:'todo'},
       {title:'Chốt trải nghiệm UI ATS',description:'Đã có prototype ATS dùng thử. Review pipeline, hồ sơ, daily brief, email và thao tác recruiter; hoàn tất các chỉnh sửa cần thiết.',status:'todo'},
       {title:'Kết nối UI với Google Sheet hai chiều',description:'UI đọc và ghi dữ liệu thật vào Sheet; thêm hồ sơ, sửa status và feedback vẫn còn đúng sau khi tải lại; kiểm tra thao tác nhiều người.',status:'todo'},

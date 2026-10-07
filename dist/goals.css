@@ -16,7 +16,7 @@
   padding: 6px 28px 6px 10px;
   background: #fff;
   color: #65785c;
-  font-size: 11px;
+  font-size: var(--text-small);
 }
 .goals-toolbar .segmented { flex-shrink: 0; }
 .goals-toolbar .segmented button { min-height: 29px; padding: 6px 12px; }
@@ -63,11 +63,11 @@
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
-.goal-card-header .badge { font-size: 10px; padding: 4px 8px; }
+.goal-card-header .badge { font-size: var(--text-caption); padding: 4px 8px; }
 .goal-card-title {
   display: block;
   color: #314d3a;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1.4;
   letter-spacing: -.3px;
   font-weight: 600;
@@ -80,7 +80,7 @@
   -webkit-line-clamp: 3;
   overflow: hidden;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-body);
   line-height: 1.7;
   margin-bottom: 23px;
   overflow-wrap: anywhere;
@@ -89,11 +89,11 @@
 .goal-card-progress > .row {
   justify-content: space-between;
   gap: 8px;
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--muted);
   margin-bottom: 9px;
 }
-.goal-card-progress strong { color: #4b7046; font-size: 13px; font-weight: 600; }
+.goal-card-progress strong { color: #4b7046; font-size: var(--text-standard); font-weight: 600; }
 .goal-card-progress .progress-track { height: 5px; }
 .goal-card-footer {
   display: flex;
@@ -105,7 +105,7 @@
   padding-top: 15px;
   border-top: 1px solid #edf0e8;
   color: #7c8a73;
-  font-size: 10px;
+  font-size: var(--text-caption);
   line-height: 1.5;
 }
 .goal-card-footer > span { display: inline-flex; align-items: center; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
@@ -132,7 +132,7 @@
 }
 .goal-empty-icon svg { width: 27px; height: 27px; }
 .goal-empty-hero h2 { font-size: 24px; letter-spacing: -.5px; color: #35513e; }
-.goal-empty-hero > p { max-width: 510px; font-size: 13px; line-height: 1.8; color: var(--muted); margin: 12px 0 22px; }
+.goal-empty-hero > p { max-width: 510px; font-size: var(--text-standard); line-height: 1.8; color: var(--muted); margin: 12px 0 22px; }
 .goal-example-card {
   width: min(580px, 100%);
   text-align: left;
@@ -142,10 +142,10 @@
   padding: 21px 23px;
   margin-top: 28px;
 }
-.goal-example-card .kicker { color: #8a9c79; font-size: 9px; margin-bottom: 8px; }
+.goal-example-card .kicker { color: #8a9c79; font-size: var(--text-tiny); margin-bottom: 8px; }
 .goal-example-card h3, .goal-example-card strong { color: #557a43; font-size: 14px; font-weight: 550; }
-.goal-example-card p { font-size: 12px; line-height: 1.8; color: #798c6b; margin: 7px 0 14px; }
-.goal-example-card .button { background: #fff; font-size: 11px; }
+.goal-example-card p { font-size: var(--text-body); line-height: 1.8; color: #798c6b; margin: 7px 0 14px; }
+.goal-example-card .button { background: #fff; font-size: var(--text-small); }
 .goal-detail-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;
@@ -153,7 +153,7 @@
   gap: 22px;
 }
 .goal-back { margin: 18px 0 -10px; }
-.goal-back .button { padding-left: 0; font-size: 11px; }
+.goal-back .button { padding-left: 0; font-size: var(--text-small); }
 .goal-back .button svg { transform: rotate(180deg); }
 .goal-back + .page-header h1 { overflow-wrap: anywhere; }
 .goal-detail-layout > .stack > .panel + .panel { margin-top: 0; }
@@ -166,28 +166,28 @@
   box-shadow: var(--shadow);
 }
 .goal-task-panel .section-title, .goal-summary-panel .section-title { margin-bottom: 17px; }
-.goal-description { color: #687b60; font-size: 13px; line-height: 1.8; white-space: pre-line; overflow-wrap: anywhere; }
+.goal-description { color: #687b60; font-size: var(--text-standard); line-height: 1.8; white-space: pre-line; overflow-wrap: anywhere; }
 .goal-summary-list { display: flex; flex-direction: column; gap: 18px; margin: 24px 0 20px; }
 .goal-summary-list > div { min-width: 0; }
 .goal-summary-list small, .goal-summary-list dt, .goal-summary-list > div > span {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-caption);
   color: #85957a;
   margin-bottom: 5px;
 }
 .goal-summary-list strong, .goal-summary-list dd {
   display: block;
   color: #536f45;
-  font-size: 12px;
+  font-size: var(--text-body);
   font-weight: 500;
   margin: 0;
   overflow-wrap: anywhere;
 }
-.goal-criteria { color: #6b7e61; font-size: 12px; line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; }
+.goal-criteria { color: #6b7e61; font-size: var(--text-body); line-height: 1.85; white-space: pre-line; overflow-wrap: anywhere; }
 .goal-progress-big { display: block; margin: 18px 0 9px; color: #507a43; font-size: 39px; font-weight: 550; letter-spacing: -1.3px; line-height: 1.15; }
 .goal-progress-big small, .goal-progress-big span { font-size: 14px; font-weight: 400; color: #8d9f7d; letter-spacing: 0; margin-left: 3px; }
 .goal-summary-panel .progress-track { height: 7px; }
-.goal-micro-stats { display: flex; flex-wrap: wrap; gap: 9px 15px; margin-top: 12px; color: #819473; font-size: 10px; line-height: 1.6; }
+.goal-micro-stats { display: flex; flex-wrap: wrap; gap: 9px 15px; margin-top: 12px; color: #819473; font-size: var(--text-caption); line-height: 1.6; }
 .goal-micro-stats strong { font-weight: 600; color: #5f7a50; }
 .goal-task-list { display: flex; flex-direction: column; }
 .goal-task-row {
@@ -200,13 +200,13 @@
 }
 .goal-task-row:first-child { border-top: none; padding-top: 4px; }
 .goal-task-row:last-child { padding-bottom: 3px; }
-.goal-task-row .task-check { margin-top: 3px; width: 18px; height: 18px; border-radius: 5px; }
+.goal-task-row .task-check { margin-top: 3px; width: 21px; height: 21px; border-radius: 5px; }
 .goal-task-row .task-check svg { width: 13px; height: 13px; }
 .goal-task-content { flex: 1; min-width: 0; }
 .goal-task-title {
   display: inline-block;
   color: #38533e;
-  font-size: 13px;
+  font-size: var(--text-standard);
   line-height: 1.6;
   font-weight: 550;
   text-align: left;
@@ -218,11 +218,11 @@
 }
 button.goal-task-title:hover, .goal-task-title button:hover { color: #47773f; text-decoration: underline; }
 .goal-task-title button { color: inherit; background: none; padding: 0; border: 0; text-align: left; font-weight: inherit; }
-.goal-task-subline { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 10px; color: #849478; font-size: 10px; line-height: 1.6; margin-top: 6px; }
+.goal-task-subline { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 10px; color: #849478; font-size: var(--text-caption); line-height: 1.6; margin-top: 6px; }
 .goal-task-subline > span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
 .goal-task-subline svg { width: 11px; height: 11px; }
-.goal-task-subline .badge { font-size: 9px; padding: 2px 6px; }
-.goal-task-content > p { font-size: 11px; line-height: 1.8; color: #7d9070; margin-top: 5px; white-space: pre-line; overflow-wrap: anywhere; }
+.goal-task-subline .badge { font-size: var(--text-tiny); padding: 2px 6px; }
+.goal-task-content > p { font-size: var(--text-small); line-height: 1.8; color: #7d9070; margin-top: 5px; white-space: pre-line; overflow-wrap: anywhere; }
 .goal-task-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; padding-top: 1px; }
 .goal-task-actions .icon-button { border-color: transparent; width: 28px; min-width: 28px; height: 29px; background: none; color: #90a080; }
 .goal-task-actions .icon-button:hover { background: #f0f5e9; border-color: #e1e9d8; color: #557347; }
@@ -231,15 +231,15 @@ button.goal-task-title:hover, .goal-task-title button:hover { color: #47773f; te
   border-radius: 6px;
   background: #f9fbf6;
   color: #647c57;
-  font-size: 10px;
+  font-size: var(--text-caption);
   line-height: 1.5;
-  min-height: 29px;
-  max-width: 125px;
-  padding: 5px 7px;
+  min-height: 35px;
+  max-width: 150px;
+  padding: 6px 8px;
 }
 .goal-task-row.done .task-check, .task-check.checked { background: #739a61; border-color: #739a61; color: #fff; }
-.goal-task-row.done .goal-task-title { color: #8b9b80; text-decoration: line-through; }
-.goal-task-row.done .goal-task-content > p, .goal-task-row.done .goal-task-subline { color: #9aaa90; }
+.goal-task-row.done .goal-task-title { color: #708163; text-decoration: line-through; }
+.goal-task-row.done .goal-task-content > p, .goal-task-row.done .goal-task-subline { color: #819175; }
 .goal-task-row.blocked { border-left: 2px solid #d6b16e; padding-left: 12px; margin-left: -14px; }
 .goal-task-row.blocked .goal-task-status { background: #fff8e9; border-color: #eedfbd; color: #9b7a43; }
 .goal-task-row.cancelled .goal-task-title { color: #a0aa98; }
@@ -254,7 +254,7 @@ button.goal-task-title:hover, .goal-task-title button:hover { color: #47773f; te
   border-radius: 8px;
   padding: 12px 14px;
   color: #758e61;
-  font-size: 11px;
+  font-size: var(--text-small);
   line-height: 1.75;
   margin: 15px 0;
 }
@@ -271,7 +271,7 @@ button.goal-task-title:hover, .goal-task-title button:hover { color: #47773f; te
   background: #f3f5ef;
   border-radius: 8px;
   color: #7c8973;
-  font-size: 11px;
+  font-size: var(--text-small);
   line-height: 1.7;
 }
 .goal-readonly-alert svg { margin-top: 2px; width: 15px; height: 15px; }
@@ -309,11 +309,11 @@ button.goal-task-title:hover, .goal-task-title button:hover { color: #47773f; te
   .goals-stats-grid .stat-value { font-size: 28px; }
   .goal-empty-hero { padding: 35px 20px 23px; }
   .goal-empty-hero h2 { font-size: 21px; }
-  .goal-empty-hero > p { font-size: 12px; }
+  .goal-empty-hero > p { font-size: var(--text-body); }
   .goal-example-card { padding: 18px; }
-  .goal-task-row { display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 11px; row-gap: 10px; padding: 17px 0; }
+  .goal-task-row { display: grid; grid-template-columns: 21px minmax(0, 1fr); column-gap: 11px; row-gap: 10px; padding: 17px 0; }
   .goal-task-actions { grid-column: 2; justify-content: flex-start; max-width: none; padding: 0; }
-  .goal-task-status { max-width: none; min-height: 32px; font-size: 11px; }
+  .goal-task-status { max-width: none; min-height: 32px; font-size: var(--text-small); }
   .goal-task-actions .icon-button { height: 32px; width: 32px; min-width: 32px; }
   .goal-task-row.blocked { margin-left: -11px; padding-left: 9px; }
   .goal-task-panel, .goal-summary-panel { padding: 20px 17px; }

@@ -55,3 +55,38 @@ test('Goal view exports parseable separate JSON and clear-filters actually clear
   assert.equal(h.ui.goalFilter,'all');
   assert.match(h.feature.renderPage(),/Goal UI test/);
 });
+
+test('done task stays visible with Undo and undoing a completed goal reopens both goal and task without losing identity',()=>{
+  const h=harness(),goal=h.create(),goalId=goal.goal_id;
+  const taskIds=h.getWork().tasks.map(row=>row.task_id),firstId=taskIds[0],secondId=taskIds[1];
+  h.feature.handleAction('goal-toggle-task',{id:firstId});
+  const first=h.getWork().tasks.find(row=>row.task_id===firstId);
+  assert.equal(first.status,'done');assert.ok(first.completed_at);
+  const brief=h.feature.renderTaskBrief(first);
+  assert.match(brief,/class="task-row is-complete"/);
+  assert.match(brief,/data-action="goal-undo-task"/);
+  assert.match(brief,/Undo/);
+  const page=h.feature.renderPage();
+  assert.ok(page.indexOf('Build prototype')<page.indexOf('Confirm scope'),'Unfinished work should appear before completed work.');
+  h.feature.handleAction('goal-toggle-task',{id:secondId});
+  h.feature.handleAction('goal-finish',{id:goalId});
+  h.getModal().onSubmit(h.data({confirmed:'yes'}));
+  assert.equal(h.getWork().goals[0].status,'completed');
+  assert.ok(h.getWork().goals[0].completed_at);
+  const secondBefore=structuredClone(h.getWork().tasks.find(row=>row.task_id===secondId));
+  h.feature.handleAction('goal-undo-task',{id:firstId});
+  const work=h.getWork(),reopened=work.tasks.find(row=>row.task_id===firstId);
+  assert.equal(work.goals[0].goal_id,goalId);
+  assert.equal(work.goals[0].status,'active');
+  assert.equal(work.goals[0].completed_at,'');
+  assert.deepEqual(work.tasks.map(row=>row.task_id),taskIds);
+  assert.equal(reopened.goal_id,goalId);
+  assert.equal(reopened.status,'todo');
+  assert.equal(reopened.completed_at,'');
+  assert.deepEqual(work.tasks.find(row=>row.task_id===secondId),secondBefore);
+  assert.equal(goalProgress(work,goalId).percent,50);
+  assert.deepEqual(validateWorkState(work),work);
+  assert.deepEqual(work.activity.slice(-2).map(row=>row.entity_type),['goal','task']);
+  assert.equal(work.activity.at(-1).before.status,'done');
+  assert.equal(work.activity.at(-1).after.status,'todo');
+});

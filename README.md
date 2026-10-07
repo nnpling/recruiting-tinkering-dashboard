@@ -40,6 +40,10 @@ npm test
 - `dist/goals-model.js`: dữ liệu và quy tắc cho mục tiêu công việc, tách khỏi database ứng viên.
 - `dist/goals-view.js`: danh sách mục tiêu, kế hoạch task, preset và thao tác import/export Goals.
 - `dist/recruiting-details.js`: thông tin tuyển dụng dưới tên ứng viên, control sửa trực tiếp và kiểm tra giá trị từng trường.
+- `dist/candidate-stage.js`: dropdown stage cạnh tên ứng viên; đóng hồ sơ vẫn cần kết quả và lý do.
+- `dist/today-widgets.js`: greeting theo giờ Việt Nam, quote gốc theo ngày, tên round đầy đủ và summary các job mở.
+- `dist/task-completion.js`: chia task hôm nay thành việc cần làm và việc đã hoàn tất; Undo dùng quy tắc trong model.
+- `dist/profile-preferences.js`: tên hiển thị riêng của trình duyệt, mặc định Linh cho workspace riêng tư hiện tại.
 - `dist/schema.json`: schema đầy đủ của Sheet, gồm tên cột, loại, dropdown và mô tả tiếng Việt.
 - `dist/styles.css`: giao diện desktop/mobile và trạng thái truy cập bằng bàn phím.
 - `dist/goals.css`: bố cục và trạng thái của màn hình Goals trên desktop/mobile.
@@ -47,6 +51,8 @@ npm test
 - `tests/goals.test.mjs`: kiểm tra tiến độ, hoàn thành mục tiêu, ngày, liên kết task và import/export của Goals.
 - `tests/goals-view.test.mjs`: kiểm tra luồng xác nhận hoàn thành Goals trên UI.
 - `tests/recruiting-details.test.mjs`: kiểm tra sửa đúng Candidate/Application, lương, ngày, giá trị trống và an toàn khi hiển thị thông tin.
+- `tests/candidate-stage.test.mjs`, `tests/task-completion.test.mjs`, `tests/today-widgets.test.mjs`: kiểm tra chuyển stage, Undo, mốc giờ/ngày và đếm pipeline theo vòng.
+- `tests/app-interactions.test.mjs`: kiểm tra event UI lưu trạng thái, giữ task hoàn tất/Undo và form đóng hồ sơ trên DOM giả lập; không thay thế kiểm tra trực quan trong browser.
 
 `schema_version` là `1.0`. JSON xuất giữ đủ `Jobs`, `Candidates`, `Applications`, `Documents`, `Rounds`, `Feedback`, `Tasks`, `Emails`, `Offers`, `ActivityLog`; trường JSON trong từng bản ghi vẫn là chuỗi JSON đúng schema. Có thể xuất riêng từng bảng CSV từ phần khám phá database. CSV chặn diễn giải giá trị bắt đầu bằng ký tự công thức; JSON là bản xuất chuẩn để bảo toàn dữ liệu.
 
@@ -60,6 +66,10 @@ Dữ liệu Goals được lưu cục bộ riêng với dữ liệu ATS. File **
 
 ## Quy tắc đã thực hiện
 
+- Hồ sơ có dropdown stage cạnh tên. Hộp quyết định recruiter và nút “Đổi giai đoạn” đã được bỏ; dữ liệu quyết định/lịch sử cũ vẫn được giữ. Chọn Đã đóng mở form kết quả/lý do; chọn stage đang tuyển từ hồ sơ đã đóng sẽ mở lại hồ sơ, không tự bật lại lịch đã hủy. Trạng thái Đang tuyển/Tạm giữ có thể chỉnh từ chip trạng thái.
+- Today có lời chào theo giờ Việt Nam: 08:00–11:59 morning, 12:00–15:59 afternoon, 16:00–17:59 evening, 18:00–22:59 wrap up, 23:00–07:59 rest. Quote productivity gốc thay theo ngày, không gọi AI. Phần job mở thu gọn mặc định, đếm hồ sơ active/on_hold theo stage/current round; không tính hồ sơ terminal.
+- Task hoàn tất hôm nay được giữ ở cuối Today với dấu gạch ngang và Undo; task Goals cũng giữ lại và nằm cuối kế hoạch. Undo không hồi sinh việc của hồ sơ đã đóng hoặc nhắc phỏng vấn đã kết thúc. Undo task của goal đã chốt sẽ mở lại goal. Greeting cập nhật từng phút; khi đổi ngày, dashboard làm mới khi không còn modal/hồ sơ đang mở.
+- UI dùng tên đầy đủ “Interview Round 1”, “Interview Round 2”, “Test 1”…; tên ID/file và dữ liệu brief cũ giữ nguyên. Tên trong lời chào hiện là tên hiển thị cục bộ có thể sửa ở Dữ liệu & kết nối, chưa đọc tự động danh tính ChatGPT từ server.
 - Thông tin tuyển dụng nằm dưới tên/vị trí ứng tuyển và trước các tab hồ sơ. Các trường sửa trực tiếp, hiện Lưu/Hủy khi focus hoặc có thay đổi. Enter lưu một trường; Escape hủy sửa trường; ghi chú dùng Ctrl/Cmd + Enter để lưu. Bản nháp các trường khác được giữ khi lưu một trường, và được xóa khi thay workspace/import database.
 - Một Candidate có nhiều Application; không dùng số dòng làm mã.
 - Fit và coverage lưu 0–1; ô trống hiển thị “—”, khác 0%.
